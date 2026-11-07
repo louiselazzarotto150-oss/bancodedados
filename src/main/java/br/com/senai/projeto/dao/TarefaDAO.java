@@ -1,4 +1,5 @@
 package br.com.senai.projeto.dao;
 
-public class TarefaDAO {
+public void excluir (int id){
+
 }
