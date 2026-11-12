@@ -1,41 +1,52 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="br.com.senai.projeto.dao.JogoDAO" %>
+<%@ page import="br.com.senai.projeto.model.Tarefa" %>
+<%@ page import="br.com.senai.projeto.dao.TarefaDAO" %>
 
 <%
 if ("POST".equalsIgnoreCase(request.getMethod())) {
 
-    int id = Integer.parseInt(request.getParameter("id"));
+    String descricao = request.getParameter("descricao");
+    String status = request.getParameter("status");
 
-    JogoDAO dao = new JogoDAO();
-    dao.excluir(id);
+    Tarefa tarefa = new Tarefa(descricao, status);
+
+    TarefaDAO dao = new TarefaDAO();
+    dao.cadastrar(tarefa);
 
     response.sendRedirect("listagem.jsp");
     return;
 }
-
-int id = Integer.parseInt(request.getParameter("id"));
 %>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Excluir Jogo</title>
+    <title>Lista de Tarefas</title>
+
+
 </head>
 <body>
 
-    <h1>Excluir Jogo</h1>
+    <h1>Cadastrar Tarefa</h1>
 
-    <p>Deseja realmente excluir este jogo?</p>
+    <form action="cadastro.jsp" method="post">
 
-    <form action="excluir.jsp" method="post">
+        <label>Descrição:</label>
+        <input type="text" name="descricao" required>
 
-        <input type="hidden" name="id" value="<%= id %>">
+        <br><br>
 
-        <button type="submit">Confirmar exclusão</button>
+        <label>Status:</label>
+        <select name="status">
+            <option value="Pendente">Pendente</option>
+            <option value="Concluída">Concluída</option>
+        </select>
+
+        <br><br>
+
+        <button type="submit">Cadastrar</button>
 
     </form>
-
-    <a href="listagem.jsp">Cancelar</a>
 
 </body>
 </html>
