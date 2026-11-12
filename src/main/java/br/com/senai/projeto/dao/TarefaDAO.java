@@ -38,4 +38,8 @@ public class TarefaDAO {
 
         return lista;
     }
+
+    public void excluir (int id){
+
+    }
 }
