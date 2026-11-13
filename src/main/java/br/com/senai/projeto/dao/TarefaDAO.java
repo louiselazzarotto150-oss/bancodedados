@@ -39,7 +39,30 @@ public class TarefaDAO {
         return lista;
     }
 
-    public void excluir (int id){
+    public boolean excluirProduto(int id) {
+        String sql = "DELETE FROM produto WHERE id = ?";
 
+        // O try-with-resources garante que conn e stmt sejam fechados automaticamente
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            int resultado = stmt.executeUpdate();
+
+            if (resultado > 0) {
+                System.out.println("Produto excluído com sucesso!");
+                return true;
+            } else {
+                System.out.println("Produto não encontrado!");
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao excluir produto: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
+
+
 }
