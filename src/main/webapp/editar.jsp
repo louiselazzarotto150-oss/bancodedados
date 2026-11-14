@@ -1,75 +1,295 @@
+
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="br.com.senai.projeto.model.Jogo" %>
-<%@ page import="br.com.senai.projeto.dao.JogoDAO" %>
+<%@ page import="br.com.senai.projeto.model.Tarefa" %>
+<%@ page import="br.com.senai.projeto.dao.TarefaDAO" %>
 
 <%
-JogoDAO dao = new JogoDAO();
+TarefaDAO dao = new TarefaDAO();
+
+String idParam = request.getParameter("id");
+
+if (idParam == null || idParam.trim().isEmpty()) {
+    response.sendRedirect("listagem.jsp");
+    return;
+}
+
+int id;
+
+try {
+    id = Integer.parseInt(idParam);
+} catch (NumberFormatException e) {
+    response.sendRedirect("listagem.jsp");
+    return;
+}
 
 if ("POST".equalsIgnoreCase(request.getMethod())) {
 
-    int id = Integer.parseInt(request.getParameter("id"));
-    String nome = request.getParameter("nome");
-    String plataforma = request.getParameter("plataforma");
-    String genero = request.getParameter("genero");
-    int ano = Integer.parseInt(request.getParameter("ano"));
+    String titulo = request.getParameter("titulo");
+    boolean concluida = Boolean.parseBoolean(
+        request.getParameter("concluida")
+    );
 
-    Jogo jogo = new Jogo(id, nome, plataforma, genero, ano);
+    Tarefa tarefaAtualizada = new Tarefa();
 
-    dao.atualizar(jogo);
+    tarefaAtualizada.setId(id);
+    tarefaAtualizada.setTitulo(titulo);
+    tarefaAtualizada.setConcluida(concluida);
 
+    boolean atualizado = dao.atualizar(tarefaAtualizada);
+
+    if (atualizado) {
+        response.sendRedirect("listagem.jsp?msg=atualizado");
+    } else {
+        response.sendRedirect("editar.jsp?id=" + id + "&msg=erro");
+    }
+
+    return;
+}
+
+Tarefa tarefa = dao.buscarPorId(id);
+
+if (tarefa == null) {
     response.sendRedirect("listagem.jsp");
     return;
 }
 
-int id = Integer.parseInt(request.getParameter("id"));
-Jogo jogo = dao.buscarPorId(id);
-
-if (jogo == null) {
-    response.sendRedirect("listagem.jsp");
-    return;
-}
+String msg = request.getParameter("msg");
 %>
 
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
+
 <head>
-    <title>Editar Jogo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Editar Tarefa</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #141e30, #243b55);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+        }
+
+        .icone {
+            text-align: center;
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #243b55;
+            margin-bottom: 10px;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .identificacao {
+            background: #f1f5f9;
+            color: #243b55;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 22px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 5px rgba(37,99,235,0.3);
+        }
+
+        .alert-erro {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .botoes {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .salvar {
+            flex: 1;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .salvar:hover {
+            background: #1d4ed8;
+            transform: scale(1.03);
+        }
+
+        .cancelar {
+            flex: 1;
+            background: #e5e7eb;
+            color: #333;
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .cancelar:hover {
+            background: #d1d5db;
+        }
+
+        .rodape {
+            text-align: center;
+            margin-top: 25px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        @media (max-width: 450px) {
+            .container {
+                padding: 25px;
+            }
+
+            .botoes {
+                flex-direction: column;
+            }
+        }
+    </style>
+
 </head>
+
 <body>
 
-    <h1>Editar Jogo</h1>
+    <div class="container">
 
-    <form action="editar.jsp" method="post">
+        <div class="icone">✏️</div>
 
-        <input type="hidden" name="id" value="<%= jogo.getId() %>">
+        <h1>Editar Tarefa</h1>
 
-        <label>Nome:</label>
-        <input type="text" name="nome"
-               value="<%= jogo.getNome() %>" required>
+        <p class="subtitulo">
+            Altere as informações da sua tarefa.
+        </p>
 
-        <br><br>
+        <div class="identificacao">
+            Tarefa ID: <%= tarefa.getId() %>
+        </div>
 
-        <label>Plataforma:</label>
-        <input type="text" name="plataforma"
-               value="<%= jogo.getPlataforma() %>" required>
+        <% if ("erro".equals(msg)) { %>
 
-        <br><br>
+            <div class="alert-erro">
+                Não foi possível atualizar a tarefa. Tente novamente.
+            </div>
 
-        <label>Gênero:</label>
-        <input type="text" name="genero"
-               value="<%= jogo.getGenero() %>" required>
+        <% } %>
 
-        <br><br>
+        <form action="editar.jsp" method="post">
 
-        <label>Ano:</label>
-        <input type="number" name="ano"
-               value="<%= jogo.getAno() %>" required>
+            <input type="hidden"
+                   name="id"
+                   value="<%= tarefa.getId() %>">
 
-        <br><br>
+            <label for="titulo">Título da tarefa:</label>
 
-        <button type="submit">Salvar alterações</button>
+            <input
+                type="text"
+                id="titulo"
+                name="titulo"
+                value="<%= tarefa.getTitulo() %>"
+                maxlength="150"
+                placeholder="Digite o título da tarefa..."
+                required
+            >
 
-    </form>
+            <label for="concluida">Status da tarefa:</label>
+
+            <select id="concluida" name="concluida">
+
+                <option value="false"
+                    <%= !tarefa.isConcluida() ? "selected" : "" %>>
+                    ⏳ Pendente
+                </option>
+
+                <option value="true"
+                    <%= tarefa.isConcluida() ? "selected" : "" %>>
+                    ✓ Concluída
+                </option>
+
+            </select>
+
+            <div class="botoes">
+
+                <button type="submit" class="salvar">
+                    ✓ Salvar alterações
+                </button>
+
+                <a href="listagem.jsp" class="cancelar">
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+        <div class="rodape">
+            Sistema de Gerenciamento de Tarefas
+        </div>
+
+    </div>
 
 </body>
 </html>
